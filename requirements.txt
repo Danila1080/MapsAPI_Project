@@ -1,6 +1,2 @@
-pip==24.0
 PyQt5==5.15.10
-PyQt5-Qt5==5.15.2
-PyQt5-sip==12.13.0
-setuptools==68.2.0
-wheel==0.41.2
+requests==2.31.0
