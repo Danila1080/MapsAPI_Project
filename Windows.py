@@ -23,11 +23,10 @@ class MainWindow(QMainWindow):
         # получение первых данных
         self.get_data('Москва')
 
-    def get_data(self, address, spn_custom_value=None):
+    def get_data(self, address, spn_custom_value=None, coords=None):
         # получение данных
-        data = get_image(address, spn_custom_value)
-        self.maps_image = data[0]
-        self.current_spn = data[1]
+        data = get_image(address, spn_custom_value, coords)
+        self.maps_image, self.current_spn, self.coords = data
         self.current_address = address
 
         # запись в файл
@@ -43,13 +42,28 @@ class MainWindow(QMainWindow):
     # обработка кликов
     def keyPressEvent(self, event):
         new_current_spn = None
+        new_coords = self.coords
 
         if event.key() == Qt.Key_Up or event.key() == Qt.Key_PageUp:
-            new_current_spn = [(x - 0.05) for x in self.current_spn]
+            x, y = self.coords
+            new_coords = [x, y + 0.05]
+            print('up')
         if event.key() == Qt.Key_Down or event.key() == Qt.Key_PageDown:
-            new_current_spn = [(x + 0.05) for x in self.current_spn]
+            x, y = self.coords
+            new_coords = [x, y - 0.05]
+            print('down')
+        if event.key() == Qt.Key_End or event.key() == Qt.Key_Right:
+            x, y = self.coords
+            new_coords = [x + 0.05, y]
+            print('right')
+        if event.key() == Qt.Key_Home or event.key() == Qt.Key_Left:
+            x, y = self.coords
+            new_coords = [x - 0.05, y]
+            print('left')
+
+        print(new_coords)
 
         # проверка ограничений
-        if 0 < new_current_spn[0] < 90 and 0 < new_current_spn[1] < 90:
-            self.current_spn = new_current_spn
-            self.get_data(self.current_address, self.current_spn)
+        if 36.6 < new_coords[0] < 38.2 and 55.3 < new_coords[1] < 56.5:
+            self.coords = new_coords
+            self.get_data(self.current_address, self.current_spn, self.coords)
