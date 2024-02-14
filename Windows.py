@@ -44,11 +44,11 @@ class MainWindow(QMainWindow):
         new_current_spn = None
         new_coords = self.coords
 
-        if event.key() == Qt.Key_Up or event.key() == Qt.Key_PageUp:
+        if event.key() == Qt.Key_Up:
             x, y = self.coords
             new_coords = [x, y + 0.05]
             print('up')
-        if event.key() == Qt.Key_Down or event.key() == Qt.Key_PageDown:
+        if event.key() == Qt.Key_Down:
             x, y = self.coords
             new_coords = [x, y - 0.05]
             print('down')
@@ -61,9 +61,21 @@ class MainWindow(QMainWindow):
             new_coords = [x - 0.05, y]
             print('left')
 
+        if event.key() == Qt.Key_PageUp:
+            new_current_spn = [(x - 0.05) for x in self.current_spn]
+        if event.key() == Qt.Key_PageDown:
+            new_current_spn = [(x + 0.05) for x in self.current_spn]
+
+            # проверка ограничений
+        if new_current_spn:
+            if 0 < new_current_spn[0] < 90 and 0 < new_current_spn[1] < 90:
+                self.current_spn = new_current_spn
+                self.get_data(self.current_address, self.current_spn)
+
         print(new_coords)
 
         # проверка ограничений
-        if 36.6 < new_coords[0] < 38.2 and 55.3 < new_coords[1] < 56.5:
-            self.coords = new_coords
-            self.get_data(self.current_address, self.current_spn, self.coords)
+        if new_coords:
+            if 36.6 < new_coords[0] < 38.2 and 55.3 < new_coords[1] < 56.5:
+                self.coords = new_coords
+                self.get_data(self.current_address, self.current_spn, self.coords)
