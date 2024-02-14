@@ -19,6 +19,7 @@ class MainWindow(QMainWindow):
         self.current_spn = None
         self.current_address = None
         self.maps_image = None
+        self.coords = None
 
         # получение первых данных
         self.get_data('Москва')
@@ -30,14 +31,14 @@ class MainWindow(QMainWindow):
         self.current_address = address
 
         # запись в файл
-        with open('data/pictures/img.png', mode='wb') as img:
+        with open('img.png', mode='wb') as img:
             img.write(self.maps_image.content)
 
         # применение картики из файла к label-виджету
-        self.Map.setPixmap(QPixmap('data/pictures/img.png'))
+        self.Map.setPixmap(QPixmap('img.png'))
 
         # стирание файла
-        os.remove('data/pictures/img.png')
+        os.remove('img.png')
 
     # обработка кликов
     def keyPressEvent(self, event):
@@ -47,32 +48,29 @@ class MainWindow(QMainWindow):
         if event.key() == Qt.Key_Up:
             x, y = self.coords
             new_coords = [x, y + 0.05]
-            print('up')
+
         if event.key() == Qt.Key_Down:
             x, y = self.coords
             new_coords = [x, y - 0.05]
-            print('down')
+
         if event.key() == Qt.Key_End or event.key() == Qt.Key_Right:
             x, y = self.coords
             new_coords = [x + 0.05, y]
-            print('right')
+
         if event.key() == Qt.Key_Home or event.key() == Qt.Key_Left:
             x, y = self.coords
             new_coords = [x - 0.05, y]
-            print('left')
 
         if event.key() == Qt.Key_PageUp:
             new_current_spn = [(x - 0.05) for x in self.current_spn]
         if event.key() == Qt.Key_PageDown:
             new_current_spn = [(x + 0.05) for x in self.current_spn]
 
-            # проверка ограничений
+        # проверка ограничений
         if new_current_spn:
             if 0 < new_current_spn[0] < 90 and 0 < new_current_spn[1] < 90:
                 self.current_spn = new_current_spn
                 self.get_data(self.current_address, self.current_spn)
-
-        print(new_coords)
 
         # проверка ограничений
         if new_coords:

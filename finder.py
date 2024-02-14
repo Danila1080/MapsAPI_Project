@@ -1,4 +1,4 @@
-from geocoder import get_ll_span, get_coordinates
+from geocoder import get_ll_span
 import requests
 
 
@@ -7,6 +7,7 @@ def get_image(toponym, spn_custom_value=None, coords=None):
     функция получает изображение по запросу,
     возващает поток байт и масштаб, либо false. В качестве аргумента принимает адрес
     и необязательный аргумент spn_value.
+    :param coords:
     :param toponym:
     :param spn_custom_value:
     :return response, spn_to_return:
