@@ -1,5 +1,5 @@
 import os
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QMessageBox
 from PyQt5 import uic
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import Qt
@@ -20,15 +20,23 @@ class MainWindow(QMainWindow):
         self.current_address = None
         self.maps_image = None
         self.coords = None
+        self.shown_check = False
+
+        self.Find_button.clicked.connect(self.find_address)
+        self.Address_input.hide()
 
         # получение первых данных
         self.get_data('Москва')
 
-    def get_data(self, address, spn_custom_value=None, coords=None):
+    def get_data(self, address, spn_custom_value=None, coords=None, pt=False):
         # получение данных
-        data = get_image(address, spn_custom_value, coords)
-        self.maps_image, self.current_spn, self.coords = data
-        self.current_address = address
+        data = get_image(address, spn_custom_value, coords, pt)
+        if data:
+            self.maps_image, self.current_spn, self.coords = data
+            self.current_address = address
+        else:
+            self.mes = Message('Ошибка!', 'Запрошенные данные не получены')
+            self.mes.show()
 
         # запись в файл
         with open('img.png', mode='wb') as img:
@@ -43,21 +51,21 @@ class MainWindow(QMainWindow):
     # обработка кликов
     def keyPressEvent(self, event):
         new_current_spn = None
-        new_coords = self.coords
+        new_coords = None
 
-        if event.key() == Qt.Key_Up:
+        if event.key() == Qt.Key_W:
             x, y = self.coords
             new_coords = [x, y + 0.05]
 
-        if event.key() == Qt.Key_Down:
+        if event.key() == Qt.Key_S:
             x, y = self.coords
             new_coords = [x, y - 0.05]
 
-        if event.key() == Qt.Key_End or event.key() == Qt.Key_Right:
+        if event.key() == Qt.Key_End or event.key() == Qt.Key_D:
             x, y = self.coords
             new_coords = [x + 0.05, y]
 
-        if event.key() == Qt.Key_Home or event.key() == Qt.Key_Left:
+        if event.key() == Qt.Key_Home or event.key() == Qt.Key_A:
             x, y = self.coords
             new_coords = [x - 0.05, y]
 
@@ -77,3 +85,22 @@ class MainWindow(QMainWindow):
             if 36.6 < new_coords[0] < 38.2 and 55.3 < new_coords[1] < 56.5:
                 self.coords = new_coords
                 self.get_data(self.current_address, self.current_spn, self.coords)
+
+    # поиск
+    def find_address(self):
+        if self.shown_check:
+            self.current_address = self.Address_input.text()
+            self.get_data(self.current_address, pt=True)
+            self.Address_input.hide()
+            self.shown_check = False
+        else:
+            self.Address_input.show()
+            self.shown_check = True
+
+
+# окно ошибки
+class Message(QMessageBox):
+    def __init__(self, name, message):
+        super().__init__()
+        self.setWindowTitle(name)
+        self.setText(message)
