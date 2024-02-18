@@ -1,19 +1,23 @@
 from geocoder import get_ll_span
 import requests
 
+current_pt_pos = None
 
-def get_image(toponym, spn_custom_value, coords, pt):
+
+def get_image(toponym, spn_custom_value, coords, set_pt):
     '''
     функция получает изображение по запросу,
     возващает поток байт и масштаб, либо false. В качестве аргумента принимает адрес
     и необязательный аргумент spn_value.
     :param coords:
     :param toponym:
-    :param pt:
+    :param set_pt:
     :param spn_custom_value:
     :return response, spn_to_return:
     :return False:
     '''
+    global current_pt_pos
+
     try:
         if toponym:
             ll, spn = get_ll_span(toponym)
@@ -25,7 +29,8 @@ def get_image(toponym, spn_custom_value, coords, pt):
             map_params = {
                 "ll": ll,
                 "spn": spn,
-                "l": "map"
+                "l": "map",
+                "pt": current_pt_pos
             }
 
             # если передан масштаб, то параметр для запроса будет изменен
@@ -37,13 +42,15 @@ def get_image(toponym, spn_custom_value, coords, pt):
                 map_params["ll"] = str(','.join(str(i) for i in coords))
                 coords_to_return = coords
 
-            if pt:
-                map_params["pt"] = ll
+            if set_pt:
+                current_pt_pos = ll
+                map_params["pt"] = current_pt_pos
 
             # запрос
             map_api_server = "http://static-maps.yandex.ru/1.x/"
             response = requests.get(map_api_server, params=map_params)
 
             return response, spn_to_return, coords_to_return
+
     except Exception:
         return False
